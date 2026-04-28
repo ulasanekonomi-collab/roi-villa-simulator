@@ -53,7 +53,20 @@ if income > 0:
     col4.metric("Break-even", f"{breakeven:.1f} thn")
 else:
     col4.metric("Break-even", "-")
+# ========================
+# INVESTMENT GRADING
+# ========================
+st.subheader("🎯 Penilaian Investasi")
 
+if roi >= 12:
+    grade = "A (Sangat Menarik)"
+    st.success(f"Grade: {grade}")
+elif roi >= 7:
+    grade = "B (Cukup Menarik)"
+    st.info(f"Grade: {grade}")
+else:
+    grade = "C (Perlu Dipertimbangkan)"
+    st.warning(f"Grade: {grade}")
 # ========================
 # LAYOUT 2 KOLOM
 # ========================
