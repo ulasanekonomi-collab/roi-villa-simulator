@@ -99,7 +99,8 @@ with col_left:
     ax.set_ylabel("ROI (%)")
 
     st.pyplot(fig)
-
+ax.axhline(y=5, linestyle='--')
+ax.text(30, 5.5, "Batas Deposito (~5%)")
 # ========================
 # PROBABILITY (MONTE CARLO)
 # ========================
