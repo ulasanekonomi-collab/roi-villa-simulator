@@ -32,19 +32,20 @@ occupancy = st.sidebar.slider("Occupancy (%)", 0, 100, occ_default)
 price = st.sidebar.number_input("Harga per Malam (Rp)", value=1200000)
 days = st.sidebar.number_input("Hari Operasional", value=365)
 share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
+
+# ✅ COST (HANYA SEKALI DI SINI)
 cost_ratio = st.sidebar.slider("Biaya Operasional (%)", 0, 80, 30)
 cost_ratio = cost_ratio / 100
+
 # ========================
-# CALCULATION (REALISTIS)
+# CALCULATION
 # ========================
 ownership = investment / unit_price if unit_price > 0 else 0
 
 revenue = occupancy / 100 * price * days
-cost_ratio = st.sidebar.slider("Biaya Operasional (%)", 0, 80, 30)
-cost_ratio = cost_ratio / 100
 income = revenue * (1 - cost_ratio) * share / 100 * ownership
 roi = (income / investment) * 100 if investment > 0 else 0
-st.write("Cost ratio aktif:", cost_ratio)
+
 # ========================
 # KPI
 # ========================
@@ -99,7 +100,7 @@ with col_left:
     roi_list = []
 
     for o in occ_range:
-        inc = (o / 100 * price * days * share / 100) * ownership
+        inc = (o / 100 * price * days * (1 - cost_ratio) * share / 100) * ownership
         r = (inc / investment) * 100 if investment > 0 else 0
         roi_list.append(r)
 
@@ -131,7 +132,7 @@ with col_right:
     roi_sim = []
 
     for o in occ_sim:
-        inc = (o / 100 * price * days * share / 100) * ownership
+        inc = (o / 100 * price * days * (1 - cost_ratio) * share / 100) * ownership
         r = (inc / investment) * 100 if investment > 0 else 0
         roi_sim.append(r)
 
@@ -169,16 +170,3 @@ else:
 # ========================
 st.markdown("---")
 st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
-
-# ========================
-# FOOTER + LOGO UNISBA
-# ========================
-st.markdown("---")
-
-col_logo, col_text = st.columns([1,4])
-
-with col_logo:
-    st.image("logo Unisba.png", width=90)
-
-with col_text:
-    st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
