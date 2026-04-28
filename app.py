@@ -54,6 +54,14 @@ if income > 0:
 else:
     col4.metric("Break-even", "-")
 # ========================
+# CASHFLOW BULANAN
+# ========================
+st.subheader("💰 Simulasi Cashflow")
+
+monthly_income = income / 12
+
+st.metric("Estimasi Passive Income / Bulan", f"Rp {monthly_income:,.0f}")
+# ========================
 # INVESTMENT GRADING
 # ========================
 st.subheader("🎯 Penilaian Investasi")
