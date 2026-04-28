@@ -6,7 +6,7 @@ import io
 
 # PDF
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="ROI Villa Simulator", layout="wide")
@@ -40,7 +40,6 @@ price = st.sidebar.number_input("Harga per Malam (Rp)", value=1200000)
 days = st.sidebar.number_input("Hari Operasional", value=365)
 share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
 
-# COST
 cost_ratio = st.sidebar.slider("Biaya Operasional (%)", 0, 80, 30) / 100
 
 # ========================
@@ -51,7 +50,6 @@ ownership = investment / unit_price if unit_price > 0 else 0
 revenue = occupancy / 100 * price * days
 income = revenue * (1 - cost_ratio) * share / 100 * ownership
 roi = (income / investment) * 100 if investment > 0 else 0
-
 breakeven = investment / income if income > 0 else 0
 
 # ========================
@@ -64,17 +62,13 @@ col2.metric("Income Anda", f"Rp {income:,.0f}")
 col3.metric("ROI", f"{roi:.2f}%")
 col4.metric("Break-even", f"{breakeven:.1f} thn" if income > 0 else "-")
 
-# ========================
-# INFO
-# ========================
 st.info(f"Porsi kepemilikan Anda: {ownership*100:.2f}% dari 1 unit vila")
 
 # ========================
 # CASHFLOW
 # ========================
 st.subheader("💰 Simulasi Cashflow")
-monthly = income / 12
-st.metric("Passive Income / Bulan", f"Rp {monthly:,.0f}")
+st.metric("Passive Income / Bulan", f"Rp {income/12:,.0f}")
 
 # ========================
 # GRADING
@@ -103,7 +97,7 @@ with col_left:
     roi_list = []
 
     for o in occ_range:
-        inc = (o / 100 * price * days * (1 - cost_ratio) * share / 100) * ownership
+        inc = (o/100 * price * days * (1 - cost_ratio) * share/100) * ownership
         r = (inc / investment) * 100 if investment > 0 else 0
         roi_list.append(r)
 
@@ -128,14 +122,13 @@ with col_right:
     st.subheader("🎲 Probabilitas ROI")
 
     simulations = 1000
-
     occ_sim = np.random.normal(loc=occupancy, scale=20, size=simulations)
     occ_sim = np.clip(occ_sim, 10, 100)
 
     roi_sim = []
 
     for o in occ_sim:
-        inc = (o / 100 * price * days * (1 - cost_ratio) * share / 100) * ownership
+        inc = (o/100 * price * days * (1 - cost_ratio) * share/100) * ownership
         r = (inc / investment) * 100 if investment > 0 else 0
         roi_sim.append(r)
 
@@ -152,10 +145,6 @@ with col_right:
 
     st.pyplot(fig2)
 
-    st.write(f"Rata-rata ROI: {np.mean(roi_sim):.2f}%")
-    st.write(f"Median ROI: {np.median(roi_sim):.2f}%")
-    st.write(f"Probabilitas ROI > 5%: {(roi_sim > 5).mean()*100:.1f}%")
-
 # ========================
 # INTERPRETASI
 # ========================
@@ -169,40 +158,30 @@ else:
     st.success("ROI menarik sebagai passive income")
 
 # ========================
-# DATA EXPORT
+# DOWNLOAD CSV
 # ========================
 st.subheader("📥 Download Hasil Simulasi")
 
 data_pdf = {
     "Total Investasi (Rp)": investment,
-    "Harga Unit (Rp)": unit_price,
-    "Ownership (%)": round(ownership * 100, 2),
-    "Occupancy (%)": occupancy,
-    "Harga per Malam (Rp)": price,
-    "Hari Operasional": days,
-    "Share Investor (%)": share,
-    "Biaya Operasional (%)": round(cost_ratio * 100, 2),
-    "Revenue (Rp)": round(revenue),
-    "Income (Rp)": round(income),
     "ROI (%)": round(roi, 2),
-    "Break-even (tahun)": round(breakeven, 2) if income > 0 else "-"
+    "Income (Rp)": round(income)
 }
 
-# CSV
 df = pd.DataFrame([data_pdf])
 csv = df.to_csv(index=False).encode("utf-8")
 
 st.download_button(
     label="📥 Download CSV",
     data=csv,
-    file_name="hasil_simulasi_roi.csv",
+    file_name="hasil_simulasi.csv",
     mime="text/csv"
 )
 
 # ========================
-# PDF FUNCTION
+# PDF FUNCTION (GRAPH ONLY)
 # ========================
-def create_pdf(data):
+def create_pdf(fig1, fig2):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     styles = getSampleStyleSheet()
@@ -211,24 +190,37 @@ def create_pdf(data):
 
     content.append(Paragraph("LAPORAN SIMULASI INVESTASI VILA", styles["Title"]))
     content.append(Spacer(1, 12))
-    content.append(Paragraph("Yuhka Sundaya | Unisba | 2026", styles["Normal"]))
+
+    # Chart 1
+    img1 = io.BytesIO()
+    fig1.savefig(img1, format='png')
+    img1.seek(0)
+
+    content.append(Paragraph("Sensitivity Analysis", styles["Heading2"]))
+    content.append(Image(img1, width=400, height=250))
     content.append(Spacer(1, 12))
 
-    for key, value in data.items():
-        text = f"{key}: {value}"
-        content.append(Paragraph(text, styles["Normal"]))
+    # Chart 2
+    img2 = io.BytesIO()
+    fig2.savefig(img2, format='png')
+    img2.seek(0)
+
+    content.append(Paragraph("Probabilitas ROI", styles["Heading2"]))
+    content.append(Image(img2, width=400, height=250))
 
     doc.build(content)
     buffer.seek(0)
     return buffer
 
+# ========================
 # PDF DOWNLOAD
-pdf = create_pdf(data_pdf)
+# ========================
+pdf = create_pdf(fig, fig2)
 
 st.download_button(
     label="📄 Download Laporan Investasi Anda",
     data=pdf,
-    file_name="laporan_simulasi_roi.pdf",
+    file_name="laporan_roi.pdf",
     mime="application/pdf"
 )
 
