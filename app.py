@@ -58,6 +58,7 @@ else:
 # SENSITIVITY CHART
 # ========================
 with col_left:
+    col_left, col_right = st.columns(2)
     st.subheader("📊 Sensitivity")
 
     occ_range = np.arange(30, 91, 5)
