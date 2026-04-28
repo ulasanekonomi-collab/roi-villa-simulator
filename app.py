@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -8,18 +7,18 @@ st.set_page_config(page_title="ROI Villa Simulator", layout="wide")
 st.title("🏝️ ROI Simulator – Investasi Vila")
 
 # ========================
-# SCENARIO BUTTON
+# SCENARIO
 # ========================
 st.sidebar.header("🎯 Scenario")
 
 if st.sidebar.button("Pesimis"):
-    occupancy_default = 40
+    occ_default = 40
 elif st.sidebar.button("Moderat"):
-    occupancy_default = 60
+    occ_default = 60
 elif st.sidebar.button("Optimis"):
-    occupancy_default = 80
+    occ_default = 80
 else:
-    occupancy_default = 60
+    occ_default = 60
 
 # ========================
 # INPUT
@@ -27,7 +26,7 @@ else:
 st.sidebar.header("Parameter Investasi")
 
 investment = st.sidebar.number_input("Total Investasi (Rp)", value=1200000000)
-occupancy = st.sidebar.slider("Occupancy (%)", 0, 100, occupancy_default)
+occupancy = st.sidebar.slider("Occupancy (%)", 0, 100, occ_default)
 price = st.sidebar.number_input("Harga per Malam (Rp)", value=1200000)
 days = st.sidebar.number_input("Hari Operasional", value=365)
 share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
@@ -58,9 +57,8 @@ else:
 # CASHFLOW
 # ========================
 st.subheader("💰 Simulasi Cashflow")
-
-monthly_income = income / 12
-st.metric("Estimasi Passive Income / Bulan", f"Rp {monthly_income:,.0f}")
+monthly = income / 12
+st.metric("Passive Income / Bulan", f"Rp {monthly:,.0f}")
 
 # ========================
 # GRADING
@@ -75,12 +73,12 @@ else:
     st.warning("Grade C (Perlu Dipertimbangkan)")
 
 # ========================
-# LAYOUT 2 KOLOM
+# LAYOUT
 # ========================
 col_left, col_right = st.columns(2)
 
 # ========================
-# CHART KIRI (SENSITIVITY)
+# SENSITIVITY
 # ========================
 with col_left:
     st.subheader("📊 Sensitivity")
@@ -89,18 +87,18 @@ with col_left:
     roi_list = []
 
     for o in occ_range:
-        r = (o/100 * price * days * share/100) / investment * 100
+        r = (o / 100 * price * days * share / 100) / investment * 100
         roi_list.append(r)
 
     fig, ax = plt.subplots()
     ax.plot(occ_range, roi_list)
 
-    # 🔥 ZONA KEPUTUSAN
-    ax.axhline(y=5, linestyle='--')
-    ax.text(35, 5.3, "Deposito (~5%)")
+    # Zona keputusan
+    ax.axhline(y=5, linestyle="--")
+    ax.text(40, 5.3, "Deposito (~5%)")
 
-    ax.axhline(y=10, linestyle='--')
-    ax.text(35, 10.3, "Target Ideal")
+    ax.axhline(y=10, linestyle="--")
+    ax.text(40, 10.3, "Target Ideal")
 
     ax.set_xlabel("Occupancy (%)")
     ax.set_ylabel("ROI (%)")
@@ -108,20 +106,20 @@ with col_left:
     st.pyplot(fig)
 
 # ========================
-# CHART KANAN (PROBABILITAS)
+# PROBABILITY
 # ========================
 with col_right:
     st.subheader("🎲 Probabilitas ROI")
 
     simulations = 1000
 
-   occ_sim = np.random.normal(loc=occupancy, scale=20, size=simulations)
+    occ_sim = np.random.normal(loc=occupancy, scale=20, size=simulations)
     occ_sim = np.clip(occ_sim, 10, 100)
 
     roi_sim = []
 
     for o in occ_sim:
-        r = (o/100 * price * days * share/100) / investment * 100
+        r = (o / 100 * price * days * share / 100) / investment * 100
         roi_sim.append(r)
 
     roi_sim = np.array(roi_sim)
@@ -129,23 +127,17 @@ with col_right:
     fig2, ax2 = plt.subplots()
     ax2.hist(roi_sim, bins=25)
 
-    # 🔥 GARIS KEPUTUSAN
-    ax2.axvline(x=5, linestyle='--')
-    ax2.axvline(x=10, linestyle='--')
+    ax2.axvline(x=5, linestyle="--")
+    ax2.axvline(x=10, linestyle="--")
 
     ax2.set_xlabel("ROI (%)")
     ax2.set_ylabel("Frekuensi")
 
     st.pyplot(fig2)
 
-    # Statistik
-    mean_roi = np.mean(roi_sim)
-    median_roi = np.median(roi_sim)
-    prob_good = np.sum(roi_sim > 5) / simulations * 100
-
-    st.write(f"📊 Rata-rata ROI: {mean_roi:.2f}%")
-    st.write(f"📊 Median ROI: {median_roi:.2f}%")
-    st.write(f"📊 Probabilitas ROI > 5%: {prob_good:.1f}%")
+    st.write(f"Rata-rata ROI: {np.mean(roi_sim):.2f}%")
+    st.write(f"Median ROI: {np.median(roi_sim):.2f}%")
+    st.write(f"Probabilitas ROI > 5%: {(roi_sim > 5).mean()*100:.1f}%")
 
 # ========================
 # INTERPRETASI
@@ -153,29 +145,21 @@ with col_right:
 st.subheader("🧠 Interpretasi")
 
 if roi < 5:
-    st.warning("ROI lebih rendah dari deposito")
+    st.warning("ROI di bawah deposito")
 elif roi <= 10:
-    st.info("ROI moderat dan relatif stabil")
+    st.info("ROI moderat dan stabil")
 else:
     st.success("ROI menarik sebagai passive income")
-# ========================
-# FINAL DECISION
-# ========================
-st.subheader("🧭 Keputusan Akhir")
 
-if roi >= 8 and breakeven <= 10:
-    st.success("Layak untuk dipertimbangkan sebagai sumber passive income")
-else:
-    st.warning("Perlu evaluasi lebih lanjut sebelum investasi")
 # ========================
-# FOOTER + LOGO
+# FOOTER + LOGO UNISBA
 # ========================
 st.markdown("---")
 
 col_logo, col_text = st.columns([1,4])
 
 with col_logo:
-    st.image("logo Unisba.png", width=100)
+    st.image("logo Unisba.png", width=90)
 
 with col_text:
     st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
