@@ -42,13 +42,17 @@ roi = (income / investment) * 100
 # ========================
 # KPI
 # ========================
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Annual Revenue", f"Rp {revenue:,.0f}")
-col2.metric("Investor Income", f"Rp {income:,.0f}")
-col3.metric("ROI (%)", f"{roi:.2f}%")
+col1.metric("Revenue", f"Rp {revenue:,.0f}")
+col2.metric("Income", f"Rp {income:,.0f}")
+col3.metric("ROI", f"{roi:.2f}%")
 
-col_left, col_right = st.columns(2)
+if income > 0:
+    breakeven = investment / income
+    col4.metric("Break-even", f"{breakeven:.1f} thn")
+else:
+    col4.metric("Break-even", "-")
 
 # ========================
 # SENSITIVITY CHART
