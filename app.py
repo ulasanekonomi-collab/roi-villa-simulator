@@ -69,7 +69,33 @@ with col_left:
     ax.set_ylabel("ROI (%)")
 
     st.pyplot(fig)
+# ========================
+# PROBABILITY CHART
+# ========================
+with col_right:
+    st.subheader("🎲 Probabilitas ROI")
 
+    simulations = 1000
+    occ_sim = np.random.normal(loc=occupancy, scale=10, size=simulations)
+    occ_sim = np.clip(occ_sim, 10, 100)
+
+    roi_sim = []
+
+    for o in occ_sim:
+        r = (o/100 * price * days * share/100) / investment * 100
+        roi_sim.append(r)
+
+    fig2, ax2 = plt.subplots()
+    ax2.hist(roi_sim, bins=25)
+    ax2.set_xlabel("ROI (%)")
+
+    st.pyplot(fig2)
+
+    mean_roi = np.mean(roi_sim)
+    prob_good = np.sum(np.array(roi_sim) > 5) / simulations * 100
+
+    st.write(f"Rata-rata ROI: {mean_roi:.2f}%")
+    st.write(f"Probabilitas ROI > 5%: {prob_good:.1f}%")
 # ========================
 # BREAK EVEN
 # ========================
