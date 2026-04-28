@@ -115,7 +115,7 @@ with col_right:
 
     simulations = 1000
 
-    occ_sim = np.random.normal(loc=occupancy, scale=10, size=simulations)
+   occ_sim = np.random.normal(loc=occupancy, scale=20, size=simulations)
     occ_sim = np.clip(occ_sim, 10, 100)
 
     roi_sim = []
@@ -158,7 +158,15 @@ elif roi <= 10:
     st.info("ROI moderat dan relatif stabil")
 else:
     st.success("ROI menarik sebagai passive income")
+# ========================
+# FINAL DECISION
+# ========================
+st.subheader("🧭 Keputusan Akhir")
 
+if roi >= 8 and breakeven <= 10:
+    st.success("Layak untuk dipertimbangkan sebagai sumber passive income")
+else:
+    st.warning("Perlu evaluasi lebih lanjut sebelum investasi")
 # ========================
 # FOOTER + LOGO
 # ========================
