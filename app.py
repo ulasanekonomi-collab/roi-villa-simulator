@@ -48,29 +48,27 @@ col1.metric("Annual Revenue", f"Rp {revenue:,.0f}")
 col2.metric("Investor Income", f"Rp {income:,.0f}")
 col3.metric("ROI (%)", f"{roi:.2f}%")
 
+col_left, col_right = st.columns(2)
+
 # ========================
 # SENSITIVITY CHART
 # ========================
-st.subheader("📊 Sensitivity Analysis")
+with col_left:
+    st.subheader("📊 Sensitivity")
 
-occ_range = np.arange(30, 91, 5)
-roi_list = []
+    occ_range = np.arange(30, 91, 5)
+    roi_list = []
 
-for o in occ_range:
-    r = (o/100 * price * days * share/100) / investment * 100
-    roi_list.append(r)
+    for o in occ_range:
+        r = (o/100 * price * days * share/100) / investment * 100
+        roi_list.append(r)
 
-df = pd.DataFrame({
-    "Occupancy": occ_range,
-    "ROI": roi_list
-})
+    fig, ax = plt.subplots()
+    ax.plot(occ_range, roi_list)
+    ax.set_xlabel("Occupancy (%)")
+    ax.set_ylabel("ROI (%)")
 
-fig, ax = plt.subplots()
-ax.plot(df["Occupancy"], df["ROI"])
-ax.set_xlabel("Occupancy (%)")
-ax.set_ylabel("ROI (%)")
-
-st.pyplot(fig)
+    st.pyplot(fig)
 
 # ========================
 # BREAK EVEN
