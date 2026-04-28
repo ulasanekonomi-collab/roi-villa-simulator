@@ -60,3 +60,5 @@ elif roi <= 10:
     st.info("ROI moderat → cocok untuk income stabil")
 else:
     st.success("ROI menarik → potensial passive income")
+st.markdown("---")
+st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
