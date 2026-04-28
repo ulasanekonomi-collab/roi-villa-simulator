@@ -152,7 +152,12 @@ with col_right:
     st.write(f"Rata-rata ROI: {np.mean(roi_sim):.2f}%")
     st.write(f"Median ROI: {np.median(roi_sim):.2f}%")
     st.write(f"Probabilitas ROI > 5%: {(roi_sim > 5).mean()*100:.1f}%")
-
+if np.mean(roi_sim) < 7:
+    st.warning("Return cenderung rendah dalam banyak skenario")
+elif np.mean(roi_sim) < 12:
+    st.info("Return moderat dengan fluktuasi")
+else:
+    st.success("Return relatif kuat dalam berbagai kondisi")
 # ========================
 # INTERPRETASI
 # ========================
