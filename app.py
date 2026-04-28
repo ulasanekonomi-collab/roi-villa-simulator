@@ -97,7 +97,22 @@ with col_left:
     ax.plot(occ_range, roi_list)
     ax.set_xlabel("Occupancy (%)")
     ax.set_ylabel("ROI (%)")
+fig, ax = plt.subplots()
+ax.plot(occ_range, roi_list)
 
+# 🔥 TAMBAHKAN INI
+ax.axhline(y=5, linestyle='--')
+ax.text(30, 5.3, "Deposito (~5%)")
+
+ax.axhline(y=10, linestyle='--')
+ax.text(30, 10.3, "Target Ideal")
+
+# =================
+
+ax.set_xlabel("Occupancy (%)")
+ax.set_ylabel("ROI (%)")
+
+st.pyplot(fig)
     st.pyplot(fig)
 ax.axhline(y=5, linestyle='--')
 ax.text(30, 5.5, "Batas Deposito (~5%)")
