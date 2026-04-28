@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="ROI Villa Simulator", layout="wide")
 
-st.title("🏝️ ROI Simulator – Investasi Vila")
+st.title("🏝️ ROI Simulator – Investasi Vila (Realistis)")
 
 # ========================
 # SCENARIO
@@ -25,17 +25,21 @@ else:
 # ========================
 st.sidebar.header("Parameter Investasi")
 
-investment = st.sidebar.number_input("Total Investasi (Rp)", value=1200000000)
+investment = st.sidebar.number_input("Total Investasi (Rp)", value=120000000)
+unit_price = st.sidebar.number_input("Harga 1 Unit Vila (Rp)", value=1200000000)
+
 occupancy = st.sidebar.slider("Occupancy (%)", 0, 100, occ_default)
 price = st.sidebar.number_input("Harga per Malam (Rp)", value=1200000)
 days = st.sidebar.number_input("Hari Operasional", value=365)
 share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
 
 # ========================
-# CALCULATION
+# CALCULATION (REALISTIS)
 # ========================
+ownership = investment / unit_price if unit_price > 0 else 0
+
 revenue = occupancy / 100 * price * days
-income = revenue * share / 100
+income = revenue * share / 100 * ownership
 roi = (income / investment) * 100 if investment > 0 else 0
 
 # ========================
@@ -43,8 +47,8 @@ roi = (income / investment) * 100 if investment > 0 else 0
 # ========================
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("Revenue", f"Rp {revenue:,.0f}")
-col2.metric("Income", f"Rp {income:,.0f}")
+col1.metric("Revenue (Unit)", f"Rp {revenue:,.0f}")
+col2.metric("Income Anda", f"Rp {income:,.0f}")
 col3.metric("ROI", f"{roi:.2f}%")
 
 if income > 0:
@@ -52,6 +56,11 @@ if income > 0:
     col4.metric("Break-even", f"{breakeven:.1f} thn")
 else:
     col4.metric("Break-even", "-")
+
+# ========================
+# INFO OWNERSHIP
+# ========================
+st.info(f"Porsi kepemilikan Anda: {ownership*100:.2f}% dari 1 unit vila")
 
 # ========================
 # CASHFLOW
@@ -87,13 +96,13 @@ with col_left:
     roi_list = []
 
     for o in occ_range:
-        r = (o / 100 * price * days * share / 100) / investment * 100
+        inc = (o / 100 * price * days * share / 100) * ownership
+        r = (inc / investment) * 100 if investment > 0 else 0
         roi_list.append(r)
 
     fig, ax = plt.subplots()
     ax.plot(occ_range, roi_list)
 
-    # Zona keputusan
     ax.axhline(y=5, linestyle="--")
     ax.text(40, 5.3, "Deposito (~5%)")
 
@@ -119,7 +128,8 @@ with col_right:
     roi_sim = []
 
     for o in occ_sim:
-        r = (o / 100 * price * days * share / 100) / investment * 100
+        inc = (o / 100 * price * days * share / 100) * ownership
+        r = (inc / investment) * 100 if investment > 0 else 0
         roi_sim.append(r)
 
     roi_sim = np.array(roi_sim)
@@ -150,6 +160,12 @@ elif roi <= 10:
     st.info("ROI moderat dan stabil")
 else:
     st.success("ROI menarik sebagai passive income")
+
+# ========================
+# FOOTER
+# ========================
+st.markdown("---")
+st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
 
 # ========================
 # FOOTER + LOGO UNISBA
