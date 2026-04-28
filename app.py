@@ -39,7 +39,8 @@ share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
 ownership = investment / unit_price if unit_price > 0 else 0
 
 revenue = occupancy / 100 * price * days
-income = revenue * share / 100 * ownership
+cost_ratio = 0.3  # 30% biaya operasional
+income = revenue * (1 - cost_ratio) * share / 100 * ownership
 roi = (income / investment) * 100 if investment > 0 else 0
 
 # ========================
