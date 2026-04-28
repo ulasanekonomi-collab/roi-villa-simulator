@@ -8,18 +8,18 @@ st.set_page_config(page_title="ROI Villa Simulator", layout="wide")
 st.title("🏝️ ROI Simulator – Investasi Vila")
 
 # ========================
-# SCENARIO BUTTONS
+# SCENARIO BUTTON
 # ========================
 st.sidebar.header("🎯 Scenario")
 
 if st.sidebar.button("Pesimis"):
-    occupancy = 40
+    occupancy_default = 40
 elif st.sidebar.button("Moderat"):
-    occupancy = 60
+    occupancy_default = 60
 elif st.sidebar.button("Optimis"):
-    occupancy = 80
+    occupancy_default = 80
 else:
-    occupancy = 60
+    occupancy_default = 60
 
 # ========================
 # INPUT
@@ -27,7 +27,7 @@ else:
 st.sidebar.header("Parameter Investasi")
 
 investment = st.sidebar.number_input("Total Investasi (Rp)", value=1200000000)
-occupancy = st.sidebar.slider("Occupancy (%)", 0, 100, occupancy)
+occupancy = st.sidebar.slider("Occupancy (%)", 0, 100, occupancy_default)
 price = st.sidebar.number_input("Harga per Malam (Rp)", value=1200000)
 days = st.sidebar.number_input("Hari Operasional", value=365)
 share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
@@ -35,9 +35,9 @@ share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
 # ========================
 # CALCULATION
 # ========================
-revenue = occupancy/100 * price * days
-income = revenue * share/100
-roi = (income / investment) * 100
+revenue = occupancy / 100 * price * days
+income = revenue * share / 100
+roi = (income / investment) * 100 if investment > 0 else 0
 
 # ========================
 # KPI
@@ -55,10 +55,14 @@ else:
     col4.metric("Break-even", "-")
 
 # ========================
+# LAYOUT 2 KOLOM
+# ========================
+col_left, col_right = st.columns(2)
+
+# ========================
 # SENSITIVITY CHART
 # ========================
 with col_left:
-    col_left, col_right = st.columns(2)
     st.subheader("📊 Sensitivity")
 
     occ_range = np.arange(30, 91, 5)
@@ -74,8 +78,9 @@ with col_left:
     ax.set_ylabel("ROI (%)")
 
     st.pyplot(fig)
+
 # ========================
-# PROBABILITY CHART
+# PROBABILITY (MONTE CARLO)
 # ========================
 with col_right:
     st.subheader("🎲 Probabilitas ROI")
@@ -90,61 +95,20 @@ with col_right:
         r = (o/100 * price * days * share/100) / investment * 100
         roi_sim.append(r)
 
+    roi_sim = np.array(roi_sim)
+
     fig2, ax2 = plt.subplots()
     ax2.hist(roi_sim, bins=25)
     ax2.set_xlabel("ROI (%)")
+    ax2.set_ylabel("Frekuensi")
 
     st.pyplot(fig2)
 
     mean_roi = np.mean(roi_sim)
-    prob_good = np.sum(np.array(roi_sim) > 5) / simulations * 100
+    prob_good = np.sum(roi_sim > 5) / simulations * 100
 
-    st.write(f"Rata-rata ROI: {mean_roi:.2f}%")
-    st.write(f"Probabilitas ROI > 5%: {prob_good:.1f}%")
-# ========================
-# BREAK EVEN
-# ========================
-st.subheader("📈 Break-even Analysis")
-
-if income > 0:
-    breakeven_year = investment / income
-    st.info(f"Perkiraan balik modal: {breakeven_year:.1f} tahun")
-else:
-    st.warning("Belum bisa hitung break-even")
-
-# ========================
-# MONTE CARLO SIMULATION
-# ========================
-st.subheader("🎲 Probabilitas ROI (Simulasi Risiko)")
-
-simulations = 1000
-
-# asumsi variasi okupansi (normal distribution)
-occ_sim = np.random.normal(loc=occupancy, scale=10, size=simulations)
-occ_sim = np.clip(occ_sim, 10, 100)
-
-roi_sim = []
-
-for o in occ_sim:
-    r = (o/100 * price * days * share/100) / investment * 100
-    roi_sim.append(r)
-
-roi_sim = np.array(roi_sim)
-
-# Plot distribusi
-fig2, ax2 = plt.subplots()
-ax2.hist(roi_sim, bins=30)
-ax2.set_xlabel("ROI (%)")
-ax2.set_ylabel("Frekuensi")
-
-st.pyplot(fig2)
-
-# Statistik
-mean_roi = np.mean(roi_sim)
-prob_positive = np.sum(roi_sim > 5) / simulations * 100
-
-st.write(f"📊 Rata-rata ROI: {mean_roi:.2f}%")
-st.write(f"📊 Probabilitas ROI > 5%: {prob_positive:.1f}%")
+    st.write(f"📊 Rata-rata ROI: {mean_roi:.2f}%")
+    st.write(f"📊 Probabilitas ROI > 5%: {prob_good:.1f}%")
 
 # ========================
 # INTERPRETASI
@@ -159,7 +123,14 @@ else:
     st.success("ROI menarik → potensial passive income")
 
 # ========================
-# FOOTER
+# FOOTER + LOGO UNISBA
 # ========================
 st.markdown("---")
-st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
+
+col_logo, col_text = st.columns([1,4])
+
+with col_logo:
+    st.image("logo Unisba.png", width=100)
+
+with col_text:
+    st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
