@@ -169,7 +169,35 @@ elif roi <= 10:
     st.info("ROI moderat dan stabil")
 else:
     st.success("ROI menarik sebagai passive income")
+import pandas as pd
 
+st.subheader("📥 Download Hasil Simulasi")
+
+data = {
+    "Total Investasi (Rp)": investment,
+    "Harga Unit (Rp)": unit_price,
+    "Ownership (%)": ownership * 100,
+    "Occupancy (%)": occupancy,
+    "Harga per Malam (Rp)": price,
+    "Hari Operasional": days,
+    "Share Investor (%)": share,
+    "Biaya Operasional (%)": cost_ratio * 100,
+    "Revenue (Rp)": revenue,
+    "Income (Rp)": income,
+    "ROI (%)": roi,
+    "Break-even (tahun)": breakeven if income > 0 else None
+}
+
+df = pd.DataFrame([data])
+
+csv = df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="📥 Download CSV",
+    data=csv,
+    file_name="hasil_simulasi_roi.csv",
+    mime="text/csv",
+)
 # ========================
 # FOOTER
 # ========================
