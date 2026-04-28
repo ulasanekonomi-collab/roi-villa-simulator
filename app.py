@@ -1,6 +1,13 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+import io
+
+# PDF
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="ROI Villa Simulator", layout="wide")
 
@@ -33,9 +40,8 @@ price = st.sidebar.number_input("Harga per Malam (Rp)", value=1200000)
 days = st.sidebar.number_input("Hari Operasional", value=365)
 share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
 
-# ✅ COST (HANYA SEKALI DI SINI)
-cost_ratio = st.sidebar.slider("Biaya Operasional (%)", 0, 80, 30)
-cost_ratio = cost_ratio / 100
+# COST
+cost_ratio = st.sidebar.slider("Biaya Operasional (%)", 0, 80, 30) / 100
 
 # ========================
 # CALCULATION
@@ -46,6 +52,8 @@ revenue = occupancy / 100 * price * days
 income = revenue * (1 - cost_ratio) * share / 100 * ownership
 roi = (income / investment) * 100 if investment > 0 else 0
 
+breakeven = investment / income if income > 0 else 0
+
 # ========================
 # KPI
 # ========================
@@ -54,15 +62,10 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric("Revenue (Unit)", f"Rp {revenue:,.0f}")
 col2.metric("Income Anda", f"Rp {income:,.0f}")
 col3.metric("ROI", f"{roi:.2f}%")
-
-if income > 0:
-    breakeven = investment / income
-    col4.metric("Break-even", f"{breakeven:.1f} thn")
-else:
-    col4.metric("Break-even", "-")
+col4.metric("Break-even", f"{breakeven:.1f} thn" if income > 0 else "-")
 
 # ========================
-# INFO OWNERSHIP
+# INFO
 # ========================
 st.info(f"Porsi kepemilikan Anda: {ownership*100:.2f}% dari 1 unit vila")
 
@@ -152,12 +155,7 @@ with col_right:
     st.write(f"Rata-rata ROI: {np.mean(roi_sim):.2f}%")
     st.write(f"Median ROI: {np.median(roi_sim):.2f}%")
     st.write(f"Probabilitas ROI > 5%: {(roi_sim > 5).mean()*100:.1f}%")
-if np.mean(roi_sim) < 7:
-    st.warning("Return cenderung rendah dalam banyak skenario")
-elif np.mean(roi_sim) < 12:
-    st.info("Return moderat dengan fluktuasi")
-else:
-    st.success("Return relatif kuat dalam berbagai kondisi")
+
 # ========================
 # INTERPRETASI
 # ========================
@@ -169,26 +167,12 @@ elif roi <= 10:
     st.info("ROI moderat dan stabil")
 else:
     st.success("ROI menarik sebagai passive income")
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-import io
 
-def create_pdf(data):
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
-    styles = getSampleStyleSheet()
+# ========================
+# DATA EXPORT
+# ========================
+st.subheader("📥 Download Hasil Simulasi")
 
-    content = []
-
-    for key, value in data.items():
-        text = f"{key}: {value}"
-        content.append(Paragraph(text, styles["Normal"]))
-
-    doc.build(content)
-    buffer.seek(0)
-    return buffer
-    pdf = create_pdf(data)
 data_pdf = {
     "Total Investasi (Rp)": investment,
     "Harga Unit (Rp)": unit_price,
@@ -203,14 +187,51 @@ data_pdf = {
     "ROI (%)": round(roi, 2),
     "Break-even (tahun)": round(breakeven, 2) if income > 0 else "-"
 }
+
+# CSV
+df = pd.DataFrame([data_pdf])
+csv = df.to_csv(index=False).encode("utf-8")
+
+st.download_button(
+    label="📥 Download CSV",
+    data=csv,
+    file_name="hasil_simulasi_roi.csv",
+    mime="text/csv"
+)
+
+# ========================
+# PDF FUNCTION
+# ========================
+def create_pdf(data):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+
+    content = []
+
+    content.append(Paragraph("LAPORAN SIMULASI INVESTASI VILA", styles["Title"]))
+    content.append(Spacer(1, 12))
+    content.append(Paragraph("Yuhka Sundaya | Unisba | 2026", styles["Normal"]))
+    content.append(Spacer(1, 12))
+
+    for key, value in data.items():
+        text = f"{key}: {value}"
+        content.append(Paragraph(text, styles["Normal"]))
+
+    doc.build(content)
+    buffer.seek(0)
+    return buffer
+
+# PDF DOWNLOAD
 pdf = create_pdf(data_pdf)
 
 st.download_button(
-    label="📄 Download PDF",
+    label="📄 Download Laporan Investasi Anda",
     data=pdf,
     file_name="laporan_simulasi_roi.pdf",
     mime="application/pdf"
 )
+
 # ========================
 # FOOTER
 # ========================
