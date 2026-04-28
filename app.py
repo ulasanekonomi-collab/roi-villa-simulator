@@ -32,7 +32,8 @@ occupancy = st.sidebar.slider("Occupancy (%)", 0, 100, occ_default)
 price = st.sidebar.number_input("Harga per Malam (Rp)", value=1200000)
 days = st.sidebar.number_input("Hari Operasional", value=365)
 share = st.sidebar.slider("Share Investor (%)", 0, 100, 60)
-
+cost_ratio = st.sidebar.slider("Biaya Operasional (%)", 0, 80, 30)
+cost_ratio = cost_ratio / 100
 # ========================
 # CALCULATION (REALISTIS)
 # ========================
