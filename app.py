@@ -169,34 +169,32 @@ elif roi <= 10:
     st.info("ROI moderat dan stabil")
 else:
     st.success("ROI menarik sebagai passive income")
-import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+import io
 
-st.subheader("📥 Download Hasil Simulasi")
+def create_pdf(data):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
 
-data = {
-    "Total Investasi (Rp)": investment,
-    "Harga Unit (Rp)": unit_price,
-    "Ownership (%)": ownership * 100,
-    "Occupancy (%)": occupancy,
-    "Harga per Malam (Rp)": price,
-    "Hari Operasional": days,
-    "Share Investor (%)": share,
-    "Biaya Operasional (%)": cost_ratio * 100,
-    "Revenue (Rp)": revenue,
-    "Income (Rp)": income,
-    "ROI (%)": roi,
-    "Break-even (tahun)": breakeven if income > 0 else None
-}
+    content = []
 
-df = pd.DataFrame([data])
+    for key, value in data.items():
+        text = f"{key}: {value}"
+        content.append(Paragraph(text, styles["Normal"]))
 
-csv = df.to_csv(index=False).encode("utf-8")
+    doc.build(content)
+    buffer.seek(0)
+    return buffer
+    pdf = create_pdf(data)
 
 st.download_button(
-    label="📥 Download CSV",
-    data=csv,
-    file_name="hasil_simulasi_roi.csv",
-    mime="text/csv",
+    label="📄 Download PDF",
+    data=pdf,
+    file_name="laporan_simulasi_roi.pdf",
+    mime="application/pdf"
 )
 # ========================
 # FOOTER
