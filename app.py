@@ -40,10 +40,11 @@ cost_ratio = cost_ratio / 100
 ownership = investment / unit_price if unit_price > 0 else 0
 
 revenue = occupancy / 100 * price * days
-cost_ratio = 0.3  # 30% biaya operasional
+cost_ratio = st.sidebar.slider("Biaya Operasional (%)", 0, 80, 30)
+cost_ratio = cost_ratio / 100
 income = revenue * (1 - cost_ratio) * share / 100 * ownership
 roi = (income / investment) * 100 if investment > 0 else 0
-
+st.write("Cost ratio aktif:", cost_ratio)
 # ========================
 # KPI
 # ========================
