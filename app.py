@@ -53,35 +53,34 @@ if income > 0:
     col4.metric("Break-even", f"{breakeven:.1f} thn")
 else:
     col4.metric("Break-even", "-")
+
 # ========================
-# CASHFLOW BULANAN
+# CASHFLOW
 # ========================
 st.subheader("💰 Simulasi Cashflow")
 
 monthly_income = income / 12
-
 st.metric("Estimasi Passive Income / Bulan", f"Rp {monthly_income:,.0f}")
+
 # ========================
-# INVESTMENT GRADING
+# GRADING
 # ========================
 st.subheader("🎯 Penilaian Investasi")
 
 if roi >= 12:
-    grade = "A (Sangat Menarik)"
-    st.success(f"Grade: {grade}")
+    st.success("Grade A (Sangat Menarik)")
 elif roi >= 7:
-    grade = "B (Cukup Menarik)"
-    st.info(f"Grade: {grade}")
+    st.info("Grade B (Cukup Menarik)")
 else:
-    grade = "C (Perlu Dipertimbangkan)"
-    st.warning(f"Grade: {grade}")
+    st.warning("Grade C (Perlu Dipertimbangkan)")
+
 # ========================
 # LAYOUT 2 KOLOM
 # ========================
 col_left, col_right = st.columns(2)
 
 # ========================
-# SENSITIVITY CHART
+# CHART KIRI (SENSITIVITY)
 # ========================
 with col_left:
     st.subheader("📊 Sensitivity")
@@ -95,22 +94,27 @@ with col_left:
 
     fig, ax = plt.subplots()
     ax.plot(occ_range, roi_list)
+
+    # 🔥 ZONA KEPUTUSAN
+    ax.axhline(y=5, linestyle='--')
+    ax.text(35, 5.3, "Deposito (~5%)")
+
+    ax.axhline(y=10, linestyle='--')
+    ax.text(35, 10.3, "Target Ideal")
+
     ax.set_xlabel("Occupancy (%)")
     ax.set_ylabel("ROI (%)")
-fig, ax = plt.subplots()
-ax.plot(occ_range, roi_list)
 
-st.pyplot(fig)
     st.pyplot(fig)
-ax.axhline(y=5, linestyle='--')
-ax.text(30, 5.5, "Batas Deposito (~5%)")
+
 # ========================
-# PROBABILITY (MONTE CARLO)
+# CHART KANAN (PROBABILITAS)
 # ========================
 with col_right:
     st.subheader("🎲 Probabilitas ROI")
 
     simulations = 1000
+
     occ_sim = np.random.normal(loc=occupancy, scale=10, size=simulations)
     occ_sim = np.clip(occ_sim, 10, 100)
 
@@ -124,15 +128,23 @@ with col_right:
 
     fig2, ax2 = plt.subplots()
     ax2.hist(roi_sim, bins=25)
+
+    # 🔥 GARIS KEPUTUSAN
+    ax2.axvline(x=5, linestyle='--')
+    ax2.axvline(x=10, linestyle='--')
+
     ax2.set_xlabel("ROI (%)")
     ax2.set_ylabel("Frekuensi")
 
     st.pyplot(fig2)
 
+    # Statistik
     mean_roi = np.mean(roi_sim)
+    median_roi = np.median(roi_sim)
     prob_good = np.sum(roi_sim > 5) / simulations * 100
 
     st.write(f"📊 Rata-rata ROI: {mean_roi:.2f}%")
+    st.write(f"📊 Median ROI: {median_roi:.2f}%")
     st.write(f"📊 Probabilitas ROI > 5%: {prob_good:.1f}%")
 
 # ========================
@@ -141,14 +153,14 @@ with col_right:
 st.subheader("🧠 Interpretasi")
 
 if roi < 5:
-    st.warning("ROI rendah → di bawah deposito")
+    st.warning("ROI lebih rendah dari deposito")
 elif roi <= 10:
-    st.info("ROI moderat → cocok untuk income stabil")
+    st.info("ROI moderat dan relatif stabil")
 else:
-    st.success("ROI menarik → potensial passive income")
+    st.success("ROI menarik sebagai passive income")
 
 # ========================
-# FOOTER + LOGO UNISBA
+# FOOTER + LOGO
 # ========================
 st.markdown("---")
 
