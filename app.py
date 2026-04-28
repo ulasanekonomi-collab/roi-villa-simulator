@@ -189,6 +189,21 @@ def create_pdf(data):
     buffer.seek(0)
     return buffer
     pdf = create_pdf(data)
+data_pdf = {
+    "Total Investasi (Rp)": investment,
+    "Harga Unit (Rp)": unit_price,
+    "Ownership (%)": round(ownership * 100, 2),
+    "Occupancy (%)": occupancy,
+    "Harga per Malam (Rp)": price,
+    "Hari Operasional": days,
+    "Share Investor (%)": share,
+    "Biaya Operasional (%)": round(cost_ratio * 100, 2),
+    "Revenue (Rp)": round(revenue),
+    "Income (Rp)": round(income),
+    "ROI (%)": round(roi, 2),
+    "Break-even (tahun)": round(breakeven, 2) if income > 0 else "-"
+}
+pdf = create_pdf(data_pdf)
 
 st.download_button(
     label="📄 Download PDF",
