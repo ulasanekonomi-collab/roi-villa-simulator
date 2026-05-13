@@ -121,10 +121,6 @@ with col2:
         f"{breakeven:.1f} tahun"
     )
 
-col1.metric("Revenue (Unit)", f"Rp {revenue:,.0f}")
-col2.metric("Income Anda", f"Rp {income:,.0f}")
-col3.metric("ROI", f"{roi:.2f}%")
-col4.metric("Break-even", f"{breakeven:.1f} thn" if income > 0 else "-")
 
 st.info(f"Porsi kepemilikan Anda: {ownership*100:.2f}% dari 1 unit vila")
 
