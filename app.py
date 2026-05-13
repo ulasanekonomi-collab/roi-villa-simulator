@@ -10,7 +10,49 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="ROI Villa Simulator", layout="wide")
+st.markdown("""
+<style>
 
+.main {
+    background-color: #f5f7fa;
+}
+
+div[data-testid="metric-container"] {
+    background-color: white;
+    border: 1px solid #e6eaf0;
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+}
+
+div[data-testid="metric-container"] label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+}
+
+div[data-testid="metric-container"] div {
+    font-size: 28px;
+    font-weight: bold;
+    color: #111;
+}
+
+h1 {
+    font-size: 52px !important;
+    font-weight: 800 !important;
+    color: #1e293b;
+}
+
+h2, h3 {
+    color: #1e293b;
+}
+
+.stAlert {
+    border-radius: 14px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 st.title("🏝️ ROI Simulator – Investasi Vila (Realistis)")
 
 # ========================
@@ -55,7 +97,29 @@ breakeven = investment / income if income > 0 else 0
 # ========================
 # KPI
 # ========================
-col1, col2, col3, col4 = st.columns(4)
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric(
+        "💰 Revenue Tahunan",
+        f"Rp {revenue:,.0f}"
+    )
+
+    st.metric(
+        "📈 ROI Tahunan",
+        f"{roi:.2f}%"
+    )
+
+with col2:
+    st.metric(
+        "💵 Income Investor",
+        f"Rp {income:,.0f}"
+    )
+
+    st.metric(
+        "⏳ Break-even",
+        f"{payback:.1f} tahun"
+    )
 
 col1.metric("Revenue (Unit)", f"Rp {revenue:,.0f}")
 col2.metric("Income Anda", f"Rp {income:,.0f}")
