@@ -118,7 +118,7 @@ with col2:
 
     st.metric(
         "⏳ Break-even",
-        f"{payback:.1f} tahun"
+        f"{breakeven:.1f} tahun"
     )
 
 col1.metric("Revenue (Unit)", f"Rp {revenue:,.0f}")
