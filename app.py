@@ -225,7 +225,27 @@ st.download_button(
 )
 
 # ========================
-# FOOTER
+# PROFIL DEVELOPER
 # ========================
+
 st.markdown("---")
-st.caption("Dikembangkan oleh Yuhka Sundaya | Ekonomi Pembangunan Unisba | 2026")
+
+colA, colB = st.columns([1,4])
+
+with colA:
+    st.image("yuhka.png", width=120)
+
+with colB:
+    st.markdown("""
+    ### Yuhka Sundaya
+    **Ekonomi Pembangunan Unisba**  
+    Developer ROI Villa Simulator & Investment Research
+    
+    Fokus pada:
+    - investasi properti
+    - ekonomi regional
+    - simulasi investasi
+    - visualisasi ekonomi
+    
+    📍 Bandung – Indonesia
+    """)
